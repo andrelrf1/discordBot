@@ -32,7 +32,7 @@ def search(text: str):
     return video_json['webpage_url']
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # main para teste
     coisa = search('Estamos todos bebados matanza')
     print(coisa)
     down = download_yt(coisa)

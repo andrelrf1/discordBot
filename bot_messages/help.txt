@@ -1,0 +1,10 @@
+Comandos disponíveis:
+
+    !play <nome da música> - pesquisa e reproduz o áudio;
+    !stop - para a reprodução;
+    !pause - pausa a reprodução;
+    !continue - continua a reprodução pausada;
+    !skip - pula para o próximo áudio;
+    !disconnect - desconecta o bot;
+    !changelog - notas de versão;
+    !ping - Pong!
