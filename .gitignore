@@ -1,0 +1,13 @@
+# Created by .ignore support plugin (hsz.mobi)
+.env
+.idea/.gitignore
+.idea/dictionaries
+.idea/discordBot.iml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+__pycache__/
+downloads.txt
+music_cache/
+venv/
