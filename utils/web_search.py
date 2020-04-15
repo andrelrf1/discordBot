@@ -22,6 +22,16 @@ class Search:
         self.__number_of_pages = number
 
     def search(self, termo: str):
+        results = []
         search_results = google.search(f'{termo} site:{self.__search_from}', self.__number_of_pages)
-        [print(result.name) for result in search_results]
+        for result in search_results:
+            results.append({'nome': result.name, 'url': result.link})
 
+        return results
+
+
+if __name__ == '__main__':  # para testes
+    search = Search()
+    resultado = search.search('flutter')
+    print(resultado)
+    print(len(resultado))

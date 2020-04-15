@@ -9,8 +9,37 @@ canal_de_voz = None
 player = None
 music_list = []
 paused = False
-changelog = ''
-help_msg = ''
+changelog = '''
+Notas de versão:
+
+1.1.4:
+- Suporte a mais caracteres especiais nos nomes das músicas;
+- Otimização no tempo de espera para reprodução de música;
+- Adição da sessão de ajuda (!help);
+- Adição da sessão changelog (!changelog).
+
+1.3.4:
+- Suporte a lista de reprodução continua adicionado;
+- Suporte a pular reprodução adicionado (!skip);
+- Suporte a desconectar bot adicionado (!disconnect);
+- Os bugs encontrados foram eliminados.
+
+1.4.4:
+- Atualização de segurança do Token do Discord.
+
+'''
+help_msg = '''
+Comandos disponíveis:
+
+!play <nome da música> - pesquisa e reproduz o áudio;
+!stop - para a reprodução;
+!pause - pausa a reprodução;
+!continue - continua a reprodução pausada;
+!skip - pula para o próximo áudio;
+!disconnect - desconecta o bot;
+!changelog - notas de versão;
+!ping - Pong!
+'''
 
 
 def remove_caracteres(name: str):
@@ -26,6 +55,12 @@ def remove_caracteres(name: str):
 
     if '|' in m_name:
         m_name = m_name.replace('|', '_')
+
+    if ' *' in m_name:
+        m_name = m_name.replace(' *', ' _')
+
+    if '*' in m_name:
+        m_name = m_name.replace('*', '')
 
     return m_name
 
