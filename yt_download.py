@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 import subprocess
-from pprint import pprint
-
 import youtube_dl
 import json
 
@@ -31,7 +29,13 @@ class YoutubeDownloader:
                 return data['title']
 
             except youtube_dl.utils.DownloadError:
-                return False
+                try:
+                    ydl.cache.remove()
+                    data = ydl.extract_info(url)
+                    return data['title']
+
+                except youtube_dl.utils.DownloadError:
+                    return False
 
     @staticmethod
     def search(text: str):
@@ -43,7 +47,6 @@ class YoutubeDownloader:
             video_json = video_json + i
 
         video_json = json.loads(video_json)
-        pprint(video_json)
         return video_json['webpage_url']
 
 
