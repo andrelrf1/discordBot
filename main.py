@@ -1,9 +1,10 @@
 import discord
 from discord.ext import tasks
 from decouple import config
-from yt_download import download_yt, search
+from yt_download import YoutubeDownloader
 
 client = discord.Client()
+yt = YoutubeDownloader()
 canal_original = None
 canal_de_voz = None
 player = None
@@ -24,8 +25,9 @@ Notas de versão:
 - Suporte a desconectar bot adicionado (!disconnect);
 - Os bugs encontrados foram eliminados.
 
-1.4.4:
-- Atualização de segurança do Token do Discord.
+1.4.5:
+- Atualização de segurança do Token do Discord;
+- Suporte a mais caracteres especiais.
 
 '''
 help_msg = '''
@@ -108,18 +110,22 @@ async def on_message(msg):
             canal_de_voz = msg.author.voice.channel
             await canal_original.send('Procurando sua música...')
 
-            link = search(music_search)
-            title = download_yt(link)
-            music_list.append(title)
+            link = yt.search(music_search)
+            title = yt.download(link)
+            if title:
+                music_list.append(title)
 
-            if not player:
-                player = await canal_de_voz.connect()
+                if not player:
+                    player = await canal_de_voz.connect()
 
-            elif not player.is_connected():
-                await player.move_to(canal_de_voz)
+                elif not player.is_connected():
+                    await player.move_to(canal_de_voz)
 
-            if player.is_playing():
-                await canal_original.send(f'{title} foi adicionado na fila!')
+                if player.is_playing():
+                    await canal_original.send(f'{title} foi adicionado na fila!')
+
+            else:
+                await canal_original.send('Houve um erro ao fazer o download da música')
 
         except AttributeError:
             await canal_original.send('Entre em um canal de áudio!')
@@ -159,6 +165,9 @@ async def on_message(msg):
                 music_list = []
                 await player.disconnect()
                 paused = False
+
+    # elif msg.content.startswith('!search'):
+    #     pass
 
 
 if __name__ == '__main__':

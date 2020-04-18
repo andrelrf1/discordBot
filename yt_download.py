@@ -1,39 +1,55 @@
 from __future__ import unicode_literals
 import subprocess
+from pprint import pprint
+
 import youtube_dl
 import json
 
 
-def download_yt(url: str):
-    ydl_opts = {
+class YoutubeDownloader:
+    __ydl_opts = {
         'format': 'bestaudio/best',
         'download_archive': 'downloads.txt',
         'outtmpl': './music_cache/%(title)s.%(ext)s'
-        # 'postprocessors': [{
-        #     'key': 'FFmpegExtractAudio',
-        #     'preferredcodec': 'mp3',
-        #     'preferredquality': '128',  # 128, 192
-        # }],
     }
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        data = ydl.extract_info(url)
-        return data['title']
 
+    @property
+    def ydl_opts(self):
+        return self.__ydl_opts
 
-def search(text: str):
-    video_json = ''
-    command = ['youtube-dl', '-j', f'ytsearch: {text}']
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            universal_newlines=True).stdout.split()
-    for i in result:
-        video_json = video_json + i
+    @ydl_opts.setter
+    def ydl_opts(self, opts: dict):
+        if not isinstance(opts, dict):
+            raise TypeError('É necessário um dict com parâmetros válidos')
 
-    video_json = json.loads(video_json)
-    return video_json['webpage_url']
+        self.__ydl_opts = opts
+
+    def download(self, url: str):
+        with youtube_dl.YoutubeDL(self.__ydl_opts) as ydl:
+            try:
+                data = ydl.extract_info(url)
+                return data['title']
+
+            except youtube_dl.utils.DownloadError:
+                return False
+
+    @staticmethod
+    def search(text: str):
+        video_json = ''
+        command = ['youtube-dl', '-j', f'ytsearch: {text}']
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                universal_newlines=True).stdout.split()
+        for i in result:
+            video_json = video_json + i
+
+        video_json = json.loads(video_json)
+        pprint(video_json)
+        return video_json['webpage_url']
 
 
 if __name__ == '__main__':  # main para teste
-    coisa = search('Estamos todos bebados matanza')
+    yt = YoutubeDownloader()
+    coisa = yt.search('TR/ST Slow Burn')
     print(coisa)
-    down = download_yt(coisa)
+    down = yt.download(coisa)
     print(down)
