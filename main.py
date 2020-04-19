@@ -1,194 +1,152 @@
 import discord
 from discord.ext import tasks
 from decouple import config
-from yt_download import YoutubeDownloader
+from utils.yt_download import YoutubeDownloader
 from utils.web_search import Search
 
-client = discord.Client()
-yt = YoutubeDownloader()
-search = Search()
-canal_original = None
-canal_de_voz = None
-player = None
-music_list = []
-paused = False
-changelog = '''
-Notas de versão:
 
-1.1.4:
-- Suporte a mais caracteres especiais nos nomes das músicas;
-- Otimização no tempo de espera para reprodução de música;
-- Adição da sessão de ajuda (!help);
-- Adição da sessão changelog (!changelog).
+class Bot(discord.Client):
+    __yt = YoutubeDownloader()
+    __web_search = Search()
+    __canal_original = None
+    __canal_de_voz = None
+    __player = None
+    __paused = False
+    __music_list = []
 
-1.3.4:
-- Suporte a lista de reprodução continua adicionado;
-- Suporte a pular reprodução adicionado (!skip);
-- Suporte a desconectar bot adicionado (!disconnect);
-- Os bugs encontrados foram eliminados.
+    @staticmethod
+    def __remove_caracteres(name: str):
+        m_name = name
+        if ':' in m_name:
+            m_name = m_name.replace(':', ' -')
 
-1.4.5:
-- Atualização de segurança do Token do Discord;
-- Suporte a mais caracteres especiais.
+        if '"' in m_name:
+            m_name = m_name.replace('"', "'")
 
-1.4.6:
-- Correções de bugs ao pesquisar áudios para reprodução.
+        if '/' in m_name:
+            m_name = m_name.replace('/', '_')
 
-1.5.6:
-- Adição de pesquisa no Stack Overflow (!search).
+        if '|' in m_name:
+            m_name = m_name.replace('|', '_')
 
-'''
-help_msg = '''
-Comandos disponíveis:
+        if ' *' in m_name:
+            m_name = m_name.replace(' *', ' _')
 
-!play <nome da música> - pesquisa e reproduz o áudio;
-!stop - para a reprodução;
-!pause - pausa a reprodução;
-!continue - continua a reprodução pausada;
-!skip - pula para o próximo áudio;
-!disconnect - desconecta o bot;
-!changelog - notas de versão;
-!search <pesquisa> - realiza uma pesquisa no Stack Overflow
-!ping - Pong!
-'''
+        if '*' in m_name:
+            m_name = m_name.replace('*', '')
 
+        return m_name
 
-def remove_caracteres(name: str):
-    m_name = name
-    if ':' in m_name:
-        m_name = m_name.replace(':', ' -')
+    @tasks.loop(seconds=3)
+    async def __music_player(self):
+        if self.__player:
+            if self.__music_list:
+                if not self.__player.is_playing() and not self.__paused:
+                    actual_music = self.__remove_caracteres(self.__music_list.pop(0))
+                    self.__player.play(discord.FFmpegPCMAudio(f'music_cache/{actual_music}.webm'))
+                    await self.__canal_original.send(f'Reproduzindo {actual_music}!')
 
-    if '"' in m_name:
-        m_name = m_name.replace('"', "'")
+    async def on_ready(self):
+        print('Os serviços do bot iniciaram com sucesso!\n')
+        self.__music_player.start()
 
-    if '/' in m_name:
-        m_name = m_name.replace('/', '_')
-
-    if '|' in m_name:
-        m_name = m_name.replace('|', '_')
-
-    if ' *' in m_name:
-        m_name = m_name.replace(' *', ' _')
-
-    if '*' in m_name:
-        m_name = m_name.replace('*', '')
-
-    return m_name
-
-
-@tasks.loop(seconds=3)
-async def music_player():
-    if player:
-        if music_list:
-            if not player.is_playing() and not paused:
-                actual_music = remove_caracteres(music_list.pop(0))
-                player.play(discord.FFmpegPCMAudio(f'music_cache/{actual_music}.webm'),
-                            after=lambda e: print(f'Música concluída.\n'))
-                await canal_original.send(f'Reproduzindo {actual_music}!')
-
-
-@client.event
-async def on_ready():
-    print('O bot foi iniciado!\n')
-    music_player.start()
-
-
-@client.event
-async def on_message(msg):
-    global player, music_list, canal_original, canal_de_voz, paused
-    if msg.author == client.user:  # ignora as mensagens do próprio bot
-        return
-
-    elif msg.content == '!ping':
-        await msg.channel.send('Pong!')
-
-    elif msg.content == '!changelog':
-        await msg.channel.send(changelog)
-
-    elif msg.content == '!help':
-        await msg.channel.send(help_msg)
-
-    elif msg.content.startswith('!play'):
-        canal_original = msg.channel
-        music_search = msg.content[6:]
-        if music_search == '' or music_search == ' ':
-            await canal_original.send('Insira um nome válido!')
+    async def on_message(self, msg):
+        if msg.author == self.user:  # ignora as mensagens do próprio bot
             return
 
-        try:
-            canal_de_voz = msg.author.voice.channel
-            await canal_original.send('Procurando sua música...')
+        elif msg.content == '!ping':
+            await msg.channel.send('Pong!')
 
-            link = yt.search(music_search)
-            title = yt.download(link)
-            if title:
-                music_list.append(title)
+        elif msg.content == '!changelog':
+            with open('./bot_messages/changelog.txt', 'r', encoding='utf-8') as changelog:
+                await msg.channel.send(changelog.read())
 
-                if not player:
-                    player = await canal_de_voz.connect()
+        elif msg.content == '!help':
+            with open('./bot_messages/help.txt', 'r', encoding='utf-8') as help_msg:
+                await msg.channel.send(help_msg.read())
 
-                elif not player.is_connected():
-                    await player.move_to(canal_de_voz)
+        elif msg.content.startswith('!play'):
+            self.__canal_original = msg.channel
+            music_search = msg.content[6:]
+            if music_search == '' or music_search == ' ':
+                await self.__canal_original.send('Insira um nome válido!')
+                return
 
-                if player.is_playing():
-                    await canal_original.send(f'{title} foi adicionado na fila!')
+            try:
+                self.__canal_de_voz = msg.author.voice.channel
+                await self.__canal_original.send('Procurando sua música...')
+
+                link = self.__yt.search(music_search)
+                title = self.__yt.download(link)
+                if title:
+                    self.__music_list.append(title)
+
+                    if not self.__player:
+                        self.__player = await self.__canal_de_voz.connect()
+
+                    elif not self.__player.is_connected():
+                        await self.__player.move_to(self.__canal_de_voz)
+
+                    if self.__player.is_playing():
+                        await self.__canal_original.send(f'{title} foi adicionado na fila!')
+
+                else:
+                    await self.__canal_original.send('Houve um erro ao fazer o download da música')
+
+            except AttributeError:
+                await self.__canal_original.send('Entre em um canal de áudio!')
+
+        elif msg.content == '!stop':
+            if self.__player:
+                if self.__player.is_playing():
+                    self.__player.stop()
+                    self.__music_list = []
+
+        elif msg.content == '!pause':
+            if self.__player:
+                if self.__player.is_playing():
+                    self.__player.pause()
+                    self.__paused = True
+
+        elif msg.content == '!continue':
+            if self.__player:
+                if self.__player.is_paused():
+                    self.__player.resume()
+                    self.__paused = False
+
+        elif msg.content == '!skip':
+            if self.__player:
+                if self.__player.is_playing():
+                    self.__player.stop()
+
+        elif msg.content == '!disconnect':
+            if self.__player:
+                if self.__player.is_connected() and (self.__player.is_playing() or self.__player.is_paused()):
+                    self.__player.stop()
+                    self.__music_list = []
+                    await self.__player.disconnect()
+                    self.__paused = False
+
+                else:
+                    self.__music_list = []
+                    await self.__player.disconnect()
+                    self.__paused = False
+
+        elif msg.content.startswith('!search'):
+            self.__canal_original = msg.channel
+            pesquisa = msg.content[8:]
+            if pesquisa == '' or pesquisa == ' ':
+                await self.__canal_original.send('Pesquisa inválida')
 
             else:
-                await canal_original.send('Houve um erro ao fazer o download da música')
+                result = self.__web_search.search(pesquisa)
+                if result != '':
+                    await self.__canal_original.send(result)
 
-        except AttributeError:
-            await canal_original.send('Entre em um canal de áudio!')
-
-    elif msg.content == '!stop':
-        if player:
-            if player.is_playing():
-                player.stop()
-                music_list = []
-
-    elif msg.content == '!pause':
-        if player:
-            if player.is_playing():
-                player.pause()
-                paused = True
-
-    elif msg.content == '!continue':
-        if player:
-            if player.is_paused():
-                player.resume()
-                paused = False
-
-    elif msg.content == '!skip':
-        if player:
-            if player.is_playing():
-                player.stop()
-
-    elif msg.content == '!disconnect':
-        if player:
-            if player.is_connected() and (player.is_playing() or player.is_paused()):
-                player.stop()
-                music_list = []
-                await player.disconnect()
-                paused = False
-
-            else:
-                music_list = []
-                await player.disconnect()
-                paused = False
-
-    elif msg.content.startswith('!search'):
-        canal_original = msg.channel
-        pesquisa = msg.content[8:]
-        if pesquisa == '' or pesquisa == ' ':
-            await canal_original.send('Pesquisa inválida')
-
-        else:
-            result = search.search(pesquisa)
-            if result != '':
-                await canal_original.send(result)
-
-            else:
-                await canal_original.send('Houve um erro ao fazer a pesquisa')
+                else:
+                    await self.__canal_original.send('Houve um erro ao fazer a pesquisa')
 
 
 if __name__ == '__main__':
-    client.run(config('TOKEN'))
+    bot = Bot()
+    bot.run(config('TOKEN'))

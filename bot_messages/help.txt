@@ -7,4 +7,5 @@ Comandos disponíveis:
     !skip - pula para o próximo áudio;
     !disconnect - desconecta o bot;
     !changelog - notas de versão;
+    !search <pesquisa> - realiza uma pesquisa no Stack Overflow
     !ping - Pong!
