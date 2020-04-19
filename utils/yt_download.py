@@ -5,11 +5,12 @@ import json
 
 
 class YoutubeDownloader:
-    __ydl_opts = {
-        'format': 'bestaudio/best',
-        'download_archive': 'downloads.txt',
-        'outtmpl': './music_cache/%(title)s.%(ext)s'
-    }
+    def __init__(self, download_folder: str):
+        self.__ydl_opts = {
+            'format': 'bestaudio/best',
+            'download_archive': f'{download_folder}/downloads.txt',
+            'outtmpl': f'{download_folder}/%(title)s.%(ext)s'
+        }
 
     @property
     def ydl_opts(self):
@@ -38,7 +39,7 @@ class YoutubeDownloader:
                     return False
 
     @staticmethod
-    def search(text: str):
+    def yt_search(text: str):
         video_json = ''
         command = ['youtube-dl', '-j', f'ytsearch: {text}']
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -52,7 +53,7 @@ class YoutubeDownloader:
 
 if __name__ == '__main__':  # main para teste
     yt = YoutubeDownloader()
-    coisa = yt.search('TR/ST Slow Burn')
+    coisa = yt.yt_search('TR/ST Slow Burn')
     print(coisa)
     down = yt.download(coisa)
     print(down)

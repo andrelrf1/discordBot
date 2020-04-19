@@ -35,5 +35,10 @@ class CacheClean:
 
 
 if __name__ == '__main__':  # Para testes
+    if not os.path.isdir('coisa'):
+        os.mkdir('coisa')
+        print('path criado')
+
     teste = CacheClean('coisa')
     print(teste.cache_path)
+    print(teste.cache_size())
