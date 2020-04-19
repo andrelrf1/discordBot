@@ -5,7 +5,6 @@ Comandos disponíveis:
     !pause - pausa a reprodução;
     !continue - continua a reprodução pausada;
     !skip - pula para o próximo áudio;
-    !disconnect - desconecta o bot;
     !changelog - notas de versão;
     !search <pesquisa> - realiza uma pesquisa no Stack Overflow
     !ping - Pong!

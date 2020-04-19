@@ -31,7 +31,7 @@ class CacheClean:
 
     def cache_clean(self):
         files = self.cache_list()
-        [os.remove(self.__cache_path + file) for file in files]
+        [os.remove(self.__cache_path + '/' + file) for file in files]
 
 
 if __name__ == '__main__':  # Para testes

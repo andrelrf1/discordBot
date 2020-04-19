@@ -5,8 +5,10 @@ import json
 
 
 class YoutubeDownloader:
+    __ydl_opts = None
+
     def __init__(self, download_folder: str):
-        self.__ydl_opts = {
+        self.ydl_opts = {
             'format': 'bestaudio/best',
             'download_archive': f'{download_folder}/downloads.txt',
             'outtmpl': f'{download_folder}/%(title)s.%(ext)s'

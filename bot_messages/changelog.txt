@@ -26,3 +26,9 @@ Notas de versão:
 - Mudança na nomenclatura do código, agora tudo é objeto;
 - A pasta de cache será limpa de acordo com a quantidade de arquivos para poupar espaço;
 - Otimizações no código.
+
+2.0.3:
+- Bugs corrigidos.
+
+2.1.3:
+- Remoção do comando !disconnect.

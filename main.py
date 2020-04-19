@@ -7,7 +7,7 @@ from utils.web_search import Search
 from utils.cache_clean import CacheClean
 
 
-class Bot(discord.Client, Search, YoutubeDownloader):
+class Bot(discord.Client, Search, YoutubeDownloader, CacheClean):
     __original_channel = None
     __voice_channel = None
     __player = None
@@ -25,8 +25,10 @@ class Bot(discord.Client, Search, YoutubeDownloader):
             if not os.path.isdir('music_cache'):
                 os.mkdir('music_cache')
 
-        super().__init__(download_folder=path)
-        self.__cache_manager = CacheClean(path)
+        super().__init__()
+        YoutubeDownloader.__init__(self, path)
+        CacheClean.__init__(self, path)
+        # self.__cache_manager = CacheClean(path)
 
     @staticmethod
     def remove_caracteres(name: str):
@@ -59,15 +61,15 @@ class Bot(discord.Client, Search, YoutubeDownloader):
                     self.__player.play(discord.FFmpegPCMAudio(f'music_cache/{actual_music}.webm'))
                     await self.__original_channel.send(f'Reproduzindo {actual_music}!')
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(minutes=3)
     async def __cache_clean(self):
-        if self.__cache_manager.cache_size() > 10:
+        if self.cache_size() > 15:
             if not self.__player:
-                self.__cache_manager.cache_clean()
+                self.cache_clean()
 
             else:
                 if not self.__player.is_playing() and not self.__paused:
-                    self.__cache_manager.cache_clean()
+                    self.cache_clean()
 
     async def on_ready(self):
         print('Os serviços do bot iniciaram com sucesso!\n')
@@ -108,8 +110,10 @@ class Bot(discord.Client, Search, YoutubeDownloader):
                     if not self.__player:
                         self.__player = await self.__voice_channel.connect()
 
-                    elif not self.__player.is_connected():
-                        await self.__player.move_to(self.__voice_channel)
+                    # elif not self.__player.is_connected():
+                    #     # await self.__player.move_to(self.__voice_channel)
+                    #     # await self.__player.connect(self.__voice_channel)
+                    #     self.__player = await self.__voice_channel.connect()
 
                     if self.__player.is_playing():
                         await self.__original_channel.send(f'{title} foi adicionado na fila!')
@@ -117,7 +121,8 @@ class Bot(discord.Client, Search, YoutubeDownloader):
                 else:
                     await self.__original_channel.send('Houve um erro ao fazer o download da música')
 
-            except AttributeError:
+            except AttributeError as err:
+                print(err)
                 await self.__original_channel.send('Entre em um canal de áudio!')
 
         elif msg.content == '!stop':
@@ -143,18 +148,18 @@ class Bot(discord.Client, Search, YoutubeDownloader):
                 if self.__player.is_playing():
                     self.__player.stop()
 
-        elif msg.content == '!disconnect':
-            if self.__player:
-                if self.__player.is_connected() and (self.__player.is_playing() or self.__player.is_paused()):
-                    self.__player.stop()
-                    self.__music_list = []
-                    await self.__player.disconnect()
-                    self.__paused = False
-
-                else:
-                    self.__music_list = []
-                    await self.__player.disconnect()
-                    self.__paused = False
+        # elif msg.content == '!disconnect':
+        #     if self.__player:
+        #         if self.__player.is_connected() and (self.__player.is_playing() or self.__player.is_paused()):
+        #             self.__player.stop()
+        #             self.__music_list = []
+        #             await self.__player.disconnect()
+        #             self.__paused = False
+        #
+        #         else:
+        #             self.__music_list = []
+        #             await self.__player.disconnect(force=True)
+        #             self.__paused = False
 
         elif msg.content.startswith('!search'):
             self.__original_channel = msg.channel
