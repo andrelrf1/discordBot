@@ -23,15 +23,31 @@ class Search:
 
     def search(self, termo: str):
         results = []
+        resultado_str = ''
         search_results = google.search(f'{termo} site:{self.__search_from}', self.__number_of_pages)
         for result in search_results:
             results.append({'nome': result.name, 'url': result.link})
 
-        return results
+        for resultado in results:
+            for valor in resultado.values():
+                resultado_str = resultado_str + valor + '\n'
+
+            resultado_str = resultado_str + '\n'
+
+        return resultado_str
 
 
 if __name__ == '__main__':  # para testes
-    search = Search()
-    resultado = search.search('flutter')
-    print(resultado)
-    print(len(resultado))
+    # search = Search()
+    # resultados = search.search('flutter')
+    # result = ''
+    # print(resultados)
+    # for resultado in resultados:
+    #     for valor in resultado.values():
+    #         result = result + valor + '\n'
+    #
+    #     result = result + '\n'
+
+    # print(result)
+    # print(len(resultado))
+    pass

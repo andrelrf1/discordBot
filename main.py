@@ -2,9 +2,11 @@ import discord
 from discord.ext import tasks
 from decouple import config
 from yt_download import YoutubeDownloader
+from utils.web_search import Search
 
 client = discord.Client()
 yt = YoutubeDownloader()
+search = Search()
 canal_original = None
 canal_de_voz = None
 player = None
@@ -29,6 +31,12 @@ Notas de versão:
 - Atualização de segurança do Token do Discord;
 - Suporte a mais caracteres especiais.
 
+1.4.6:
+- Correções de bugs ao pesquisar áudios para reprodução.
+
+1.5.6:
+- Adição de pesquisa no Stack Overflow (!search).
+
 '''
 help_msg = '''
 Comandos disponíveis:
@@ -40,6 +48,7 @@ Comandos disponíveis:
 !skip - pula para o próximo áudio;
 !disconnect - desconecta o bot;
 !changelog - notas de versão;
+!search <pesquisa> - realiza uma pesquisa no Stack Overflow
 !ping - Pong!
 '''
 
@@ -166,8 +175,19 @@ async def on_message(msg):
                 await player.disconnect()
                 paused = False
 
-    # elif msg.content.startswith('!search'):
-    #     pass
+    elif msg.content.startswith('!search'):
+        canal_original = msg.channel
+        pesquisa = msg.content[8:]
+        if pesquisa == '' or pesquisa == ' ':
+            await canal_original.send('Pesquisa inválida')
+
+        else:
+            result = search.search(pesquisa)
+            if result != '':
+                await canal_original.send(result)
+
+            else:
+                await canal_original.send('Houve um erro ao fazer a pesquisa')
 
 
 if __name__ == '__main__':
