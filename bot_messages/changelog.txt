@@ -35,3 +35,6 @@ Notas de versão:
 
 2.2.3:
 - Adicionada a funcionalidade que permite gerar números aleatórios se necessário.
+
+2.2.4:
+- Suporte a outras extensões de arquivos de download feito do youtube.

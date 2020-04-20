@@ -58,7 +58,12 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
             if self.__music_list:
                 if not self.__player.is_playing() and not self.__paused:
                     actual_music = self.remove_caracteres(self.__music_list.pop(0))
-                    self.__player.play(FFmpegPCMAudio(f'music_cache/{actual_music}.webm'))
+                    if os.path.exists(f'.\\music_cache\\{actual_music}.m4a'):
+                        self.__player.play(FFmpegPCMAudio(f'.\\music_cache\\{actual_music}.m4a'))
+
+                    else:
+                        self.__player.play(FFmpegPCMAudio(f'.\\music_cache\\{actual_music}.webm'))
+
                     await self.__original_channel.send(f'Reproduzindo {actual_music}!')
 
     @tasks.loop(minutes=3)
