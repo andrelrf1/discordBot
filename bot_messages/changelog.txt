@@ -32,3 +32,6 @@ Notas de versão:
 
 2.1.3:
 - Remoção do comando !disconnect.
+
+2.2.3:
+- Adicionada a funcionalidade que permite gerar números aleatórios se necessário.

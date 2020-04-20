@@ -1,13 +1,14 @@
-import discord
 import os
+from discord import Client, FFmpegPCMAudio
 from discord.ext import tasks
 from decouple import config
 from utils.yt_download import YoutubeDownloader
 from utils.web_search import Search
 from utils.cache_clean import CacheClean
+from utils.random_number import NumberGenerate
 
 
-class Bot(discord.Client, Search, YoutubeDownloader, CacheClean):
+class Bot(Client, Search, YoutubeDownloader, CacheClean):
     __original_channel = None
     __voice_channel = None
     __player = None
@@ -25,10 +26,9 @@ class Bot(discord.Client, Search, YoutubeDownloader, CacheClean):
             if not os.path.isdir('music_cache'):
                 os.mkdir('music_cache')
 
-        super().__init__()
+        Client.__init__(self)
         YoutubeDownloader.__init__(self, path)
         CacheClean.__init__(self, path)
-        # self.__cache_manager = CacheClean(path)
 
     @staticmethod
     def remove_caracteres(name: str):
@@ -58,7 +58,7 @@ class Bot(discord.Client, Search, YoutubeDownloader, CacheClean):
             if self.__music_list:
                 if not self.__player.is_playing() and not self.__paused:
                     actual_music = self.remove_caracteres(self.__music_list.pop(0))
-                    self.__player.play(discord.FFmpegPCMAudio(f'music_cache/{actual_music}.webm'))
+                    self.__player.play(FFmpegPCMAudio(f'music_cache/{actual_music}.webm'))
                     await self.__original_channel.send(f'Reproduzindo {actual_music}!')
 
     @tasks.loop(minutes=3)
@@ -110,11 +110,6 @@ class Bot(discord.Client, Search, YoutubeDownloader, CacheClean):
                     if not self.__player:
                         self.__player = await self.__voice_channel.connect()
 
-                    # elif not self.__player.is_connected():
-                    #     # await self.__player.move_to(self.__voice_channel)
-                    #     # await self.__player.connect(self.__voice_channel)
-                    #     self.__player = await self.__voice_channel.connect()
-
                     if self.__player.is_playing():
                         await self.__original_channel.send(f'{title} foi adicionado na fila!')
 
@@ -148,19 +143,6 @@ class Bot(discord.Client, Search, YoutubeDownloader, CacheClean):
                 if self.__player.is_playing():
                     self.__player.stop()
 
-        # elif msg.content == '!disconnect':
-        #     if self.__player:
-        #         if self.__player.is_connected() and (self.__player.is_playing() or self.__player.is_paused()):
-        #             self.__player.stop()
-        #             self.__music_list = []
-        #             await self.__player.disconnect()
-        #             self.__paused = False
-        #
-        #         else:
-        #             self.__music_list = []
-        #             await self.__player.disconnect(force=True)
-        #             self.__paused = False
-
         elif msg.content.startswith('!search'):
             self.__original_channel = msg.channel
             pesquisa = msg.content[8:]
@@ -174,6 +156,63 @@ class Bot(discord.Client, Search, YoutubeDownloader, CacheClean):
 
                 else:
                     await self.__original_channel.send('Houve um erro ao fazer a pesquisa')
+
+        elif msg.content.startswith('!number'):
+            self.__original_channel = msg.channel
+            detalhes = msg.content.split(' ')
+            del (detalhes[0])
+
+            if len(detalhes) == 0:
+                result = NumberGenerate.get_one_number()
+                await self.__original_channel.send(f'O número sorteado foi: {result}.')
+
+            elif len(detalhes) == 2:
+                try:
+                    result = NumberGenerate.get_one_number_between(first_number=int(detalhes[0]),
+                                                                   last_number=int(detalhes[1]))
+                    await self.__original_channel.send(f'O número sorteado foi: {result}.')
+
+                except ValueError:
+                    await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
+
+            else:
+                await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
+
+        elif msg.content.startswith('!listNumber'):
+            self.__original_channel = msg.channel
+            detalhes = msg.content.split(' ')
+            del (detalhes[0])
+            if len(detalhes) == 2:
+                if detalhes[-1].lower() == 'unicos' or detalhes[-1] == 'repetidos':
+                    try:
+                        result = NumberGenerate.get_one_number_list(True if detalhes[-1].lower() == 'unicos' else False,
+                                                                    int(detalhes[0]))
+                        await self.__original_channel.send(f'Os números sorteados são:\n{result}')
+
+                    except ValueError:
+                        await self.__original_channel.send(
+                            'Houve um problema de comando, para ajuda use o comando !help')
+
+                else:
+                    await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
+
+            elif len(detalhes) == 4:
+                if detalhes[-1].lower() == 'unicos' or detalhes[-1] == 'repetidos':
+                    try:
+                        result = NumberGenerate.get_one_number_list_between(
+                            True if detalhes[-1].lower() == 'unicos' else False, size=int(detalhes[2]),
+                            first_number=int(detalhes[0]), second_number=int(detalhes[1]))
+                        await self.__original_channel.send(f'Os números sorteados são:\n{result}')
+
+                    except ValueError:
+                        await self.__original_channel.send(
+                            'Houve um problema de comando, para ajuda use o comando !help')
+
+                else:
+                    await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
+
+            else:
+                await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
 
 
 if __name__ == '__main__':
