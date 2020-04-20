@@ -38,3 +38,6 @@ Notas de versão:
 
 2.2.4:
 - Suporte a outras extensões de arquivos de download feito do youtube.
+
+2.3.4:
+- Agora é possível ver as músicas que serão exibidas a seguir (!next).

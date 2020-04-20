@@ -148,6 +148,17 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
                 if self.__player.is_playing():
                     self.__player.stop()
 
+        elif msg.content == '!next':
+            if len(self.__music_list) > 0:
+                future = 'Na fila:\n\n'
+                for music in self.__music_list:
+                    future = future + f'{self.__music_list.index(music) + 1} - {music}\n'
+
+                await msg.channel.send(future)
+
+            else:
+                await msg.channel.send('Não temos músicas na fila')
+
         elif msg.content.startswith('!search'):
             self.__original_channel = msg.channel
             pesquisa = msg.content[8:]
