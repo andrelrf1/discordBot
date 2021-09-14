@@ -161,7 +161,7 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
                 await msg.channel.send(future)
 
             else:
-                await msg.channel.send('Não temos músicas na fila')
+                await msg.channel.send('Não há músicas na fila')
 
         elif msg.content.startswith('!search'):
             self.__original_channel = msg.channel
