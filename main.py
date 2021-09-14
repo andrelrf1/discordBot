@@ -65,7 +65,7 @@ class Bot(Client, YoutubeDownloader, CacheClean):
                     else:
                         self.__player.play(FFmpegPCMAudio(f'.\\music_cache\\{actual_music}.webm'))
 
-                    await self.__original_channel.send(f'Reproduzindo {actual_music}!')
+                    await self.__original_channel.send(f':notes: Reproduzindo {actual_music}!')
 
     @tasks.loop(minutes=3)
     async def __cache_clean(self):
@@ -78,7 +78,7 @@ class Bot(Client, YoutubeDownloader, CacheClean):
                     self.cache_clean()
 
     async def on_ready(self):
-        print('O bot iniciou corretamente!\n')
+        print('Bot em execução!\n')
         self.__music_player.start()
         self.__cache_clean.start()
 
@@ -102,12 +102,12 @@ class Bot(Client, YoutubeDownloader, CacheClean):
             self.__original_channel = msg.channel
             music_search = msg.content[6:] if msg.content.split(' ')[0] == '!play' else msg.content[3:]
             if music_search == '' or music_search == ' ':
-                await self.__original_channel.send('Insira um nome válido!')
+                await self.__original_channel.send(':warning: Insira um nome válido!')
                 return
 
             try:
                 self.__voice_channel = msg.author.voice.channel
-                await self.__original_channel.send('Procurando música...')
+                await self.__original_channel.send(f':mag_right: Procurando {music_search}')
 
                 link = self.yt_search(music_search)
                 title = self.download(link)
@@ -118,14 +118,14 @@ class Bot(Client, YoutubeDownloader, CacheClean):
                         self.__player = await self.__voice_channel.connect()
 
                     if self.__player.is_playing():
-                        await self.__original_channel.send(f'{title} foi adicionado na fila!')
+                        await self.__original_channel.send(f':page_with_curl: {title} foi adicionado na fila!')
 
                 else:
-                    await self.__original_channel.send('Houve um erro ao fazer o download da música')
+                    await self.__original_channel.send(':no_entry: Houve um erro ao fazer o download da música!')
 
             except AttributeError as err:
                 print(err)
-                await self.__original_channel.send('Entre em um canal de áudio!')
+                await self.__original_channel.send(':warning: Entre em um canal de áudio!')
 
         elif msg.content == '!stop':
             if self.__player:

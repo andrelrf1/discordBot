@@ -11,6 +11,7 @@ class YoutubeDownloader:
         self.ydl_opts = {
             # 'format': 'bestaudio/best',
             'format': 'worstaudio/worst',
+            'quiet': True,
             'download_archive': f'{download_folder}/downloads.txt',
             'outtmpl': f'{download_folder}/%(title)s.%(ext)s'
         }

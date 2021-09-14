@@ -1,6 +1,17 @@
 Notas de versão:
 
 1.0.0:
-- Suporte para reprodução de músicas ainda experimental;
-- Novos comandos de reprodução;
-- Melhor desempenho para reprodução de música;
+- Suporte para reprodução de áudios do YouTube;
+- Suporte a adição de áudios para reprodução em fila;
+- Novos comandos de controle de reprodução (use !help para mais informações);
+- Melhor desempenho para reprodução de áudios (otimização do download do arquivo);
+
+
+Problemas conhecidos:
+- Suporte para reprodução de áudios ainda experimental (raramente alguns áudios podem falhar na reprodução);
+- Links do Spotify não são 100% suportados, resultando em comportamentos inesperados;
+- Áudios longos podem ocasionar demora para iniciar a reprodução;
+- Não há suporte para playlists do YouTube, resultando em comportamento inesperado;
+- Não há suporte para hierarquia de usuários;
+- Não há suporte a loop de áudios;
+- Não há comando para desconexão do bot do canal;
