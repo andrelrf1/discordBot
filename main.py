@@ -3,12 +3,10 @@ from discord import Client, FFmpegPCMAudio
 from discord.ext import tasks
 from decouple import config
 from utils.yt_download import YoutubeDownloader
-from utils.web_search import Search
 from utils.cache_clean import CacheClean
-from utils.random_number import NumberGenerate
 
 
-class Bot(Client, Search, YoutubeDownloader, CacheClean):
+class Bot(Client, YoutubeDownloader, CacheClean):
     __original_channel = None
     __voice_channel = None
     __player = None
@@ -141,7 +139,7 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
                     self.__player.pause()
                     self.__paused = True
 
-        elif msg.content == '!continue':
+        elif msg.content == '!continue' or msg.content == '!resume':
             if self.__player:
                 if self.__player.is_paused():
                     self.__player.resume()
@@ -152,7 +150,7 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
                 if self.__player.is_playing():
                     self.__player.stop()
 
-        elif msg.content == '!next':
+        elif msg.content == '!next' or msg.content == '!queue':
             if len(self.__music_list) > 0:
                 future = 'Na fila:\n\n'
                 for music in self.__music_list:
@@ -162,77 +160,6 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
 
             else:
                 await msg.channel.send('Não há músicas na fila')
-
-        elif msg.content.startswith('!search'):
-            self.__original_channel = msg.channel
-            pesquisa = msg.content[8:]
-            if pesquisa == '' or pesquisa == ' ':
-                await self.__original_channel.send('Pesquisa inválida')
-
-            else:
-                result = self.search(pesquisa)
-                if result != '':
-                    await self.__original_channel.send(result)
-
-                else:
-                    await self.__original_channel.send('Houve um erro ao fazer a pesquisa')
-
-        elif msg.content.startswith('!number'):
-            self.__original_channel = msg.channel
-            detalhes = msg.content.split(' ')
-            del (detalhes[0])
-
-            if len(detalhes) == 0:
-                result = NumberGenerate.get_one_number()
-                await self.__original_channel.send(f'O número sorteado foi: {result}.')
-
-            elif len(detalhes) == 2:
-                try:
-                    result = NumberGenerate.get_one_number_between(first_number=int(detalhes[0]),
-                                                                   last_number=int(detalhes[1]))
-                    await self.__original_channel.send(f'O número sorteado foi: {result}.')
-
-                except ValueError:
-                    await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
-
-            else:
-                await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
-
-        elif msg.content.startswith('!listNumber'):
-            self.__original_channel = msg.channel
-            detalhes = msg.content.split(' ')
-            del (detalhes[0])
-            if len(detalhes) == 2:
-                if detalhes[-1].lower() == 'unicos' or detalhes[-1] == 'repetidos':
-                    try:
-                        result = NumberGenerate.get_one_number_list(True if detalhes[-1].lower() == 'unicos' else False,
-                                                                    int(detalhes[0]))
-                        await self.__original_channel.send(f'Os números sorteados são:\n{result}')
-
-                    except ValueError:
-                        await self.__original_channel.send(
-                            'Houve um problema de comando, para ajuda use o comando !help')
-
-                else:
-                    await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
-
-            elif len(detalhes) == 4:
-                if detalhes[-1].lower() == 'unicos' or detalhes[-1] == 'repetidos':
-                    try:
-                        result = NumberGenerate.get_one_number_list_between(
-                            True if detalhes[-1].lower() == 'unicos' else False, size=int(detalhes[2]),
-                            first_number=int(detalhes[0]), second_number=int(detalhes[1]))
-                        await self.__original_channel.send(f'Os números sorteados são:\n{result}')
-
-                    except ValueError:
-                        await self.__original_channel.send(
-                            'Houve um problema de comando, para ajuda use o comando !help')
-
-                else:
-                    await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
-
-            else:
-                await self.__original_channel.send('Houve um problema de comando, para ajuda use o comando !help')
 
 
 if __name__ == '__main__':

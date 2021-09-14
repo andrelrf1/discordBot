@@ -3,19 +3,10 @@ Comandos disponíveis:
 - Reprodução de áudio:
     !play ou !p <nome da música> - pesquisa e reproduz o áudio;
     !pause - pausa a reprodução;
-    !continue - continua a reprodução pausada;
+    !continue ou !resume - continua a reprodução pausada;
     !skip - pula para o próximo áudio;
-    !stop - para a reprodução;
-    !next - exibe os áudios que serão reproduzidos em seguida.
-
-- Pesquisa na web:
-    !search <pesquisa> - realiza uma pesquisa no Stack Overflow.
-
-- Gerar Número(s) aleatório(s):
-    !number - Gera um número aleatório;
-    !number <numero inicial> <numero final> - gera um número aleatório dentro de um limite;
-    !listNumber <quantidade de números> <unicos ou repetidos> - gera uma lista de números aleatórios de tamanho definido
-    !listNumber <numero inicial> <numero final> <quantidade de números> <unicos ou repetidos> - gera uma lista de números aleatórios com tamanho definido dentro de um limite
+    !stop - encerra a reprodução;
+    !next ou !queue - exibe os áudios que serão reproduzidos em seguida.
 
 - Notas de versão:
     !changelog - notas de versão.
