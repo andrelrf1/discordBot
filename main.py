@@ -99,7 +99,8 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
             with open('./bot_messages/help.txt', 'r', encoding='utf-8') as help_msg:
                 await msg.channel.send(help_msg.read())
 
-        elif msg.content.startswith('!play'):
+        elif (msg.content.startswith('!play') and msg.content.split(' ')[0] == '!play') or (
+                msg.content.startswith('!p') and msg.content.split(' ')[0] == '!p'):
             self.__original_channel = msg.channel
             music_search = msg.content[6:]
             if music_search == '' or music_search == ' ':
@@ -108,7 +109,7 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
 
             try:
                 self.__voice_channel = msg.author.voice.channel
-                await self.__original_channel.send('Procurando sua música...')
+                await self.__original_channel.send('Procurando música...')
 
                 link = self.yt_search(music_search)
                 title = self.download(link)

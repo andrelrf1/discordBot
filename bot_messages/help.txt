@@ -1,7 +1,7 @@
 Comandos disponíveis:
 
 - Reprodução de áudio:
-    !play <nome da música> - pesquisa e reproduz o áudio;
+    !play ou !p <nome da música> - pesquisa e reproduz o áudio;
     !pause - pausa a reprodução;
     !continue - continua a reprodução pausada;
     !skip - pula para o próximo áudio;

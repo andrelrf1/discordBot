@@ -9,7 +9,8 @@ class YoutubeDownloader:
 
     def __init__(self, download_folder: str):
         self.ydl_opts = {
-            'format': 'bestaudio/best',
+            # 'format': 'bestaudio/best',
+            'format': 'worstaudio/worst',
             'download_archive': f'{download_folder}/downloads.txt',
             'outtmpl': f'{download_folder}/%(title)s.%(ext)s'
         }
