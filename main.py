@@ -80,7 +80,7 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
                     self.cache_clean()
 
     async def on_ready(self):
-        print('Os serviços do bot iniciaram com sucesso!\n')
+        print('O bot iniciou corretamente!\n')
         self.__music_player.start()
         self.__cache_clean.start()
 
@@ -102,7 +102,7 @@ class Bot(Client, Search, YoutubeDownloader, CacheClean):
         elif (msg.content.startswith('!play') and msg.content.split(' ')[0] == '!play') or (
                 msg.content.startswith('!p') and msg.content.split(' ')[0] == '!p'):
             self.__original_channel = msg.channel
-            music_search = msg.content[6:]
+            music_search = msg.content[6:] if msg.content.split(' ')[0] == '!play' else msg.content[3:]
             if music_search == '' or music_search == ' ':
                 await self.__original_channel.send('Insira um nome válido!')
                 return
