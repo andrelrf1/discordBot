@@ -3,6 +3,6 @@
 Chat Bot feito em Python para uso no Discord
 
 Dependências de desenvolvimento e para execução:
-- Python 3.6.X ou superior;
-- FFmpeg;
-- Módulos internos e externos.
+- <a href="https://www.python.org/">Python 3.9.X ou superior</a>;
+- <a href="https://ffmpeg.org/download.html">FFmpeg</a>;
+- Ter uma chave para bot no Discord Developer;

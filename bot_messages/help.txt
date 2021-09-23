@@ -6,7 +6,8 @@ Comandos disponíveis:
     !continue ou !resume - continua a reprodução pausada;
     !skip - pula para o próximo áudio;
     !stop - encerra a reprodução;
-    !next ou !queue - exibe os áudios que serão reproduzidos em seguida.
+    !next ou !queue - exibe os áudios que serão reproduzidos em seguida;
+    !disconnect ou !leave - desconecta o bot do canal de voz.
 
 - Notas de versão:
     !changelog - notas de versão.

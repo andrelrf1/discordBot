@@ -53,17 +53,18 @@ class Bot(Client, YoutubeDownloader, CacheClean):
 
         return name
 
-    @tasks.loop(seconds=3)
+    @tasks.loop(seconds=1)
     async def __music_player(self):
         if self.__player:
             if self.__music_list:
                 if not self.__player.is_playing() and not self.__paused:
                     actual_music = self.remove_caracteres(self.__music_list.pop(0))
-                    if os.path.exists(f'.\\music_cache\\{actual_music}.m4a'):
-                        self.__player.play(FFmpegPCMAudio(f'.\\music_cache\\{actual_music}.m4a'))
+
+                    if os.path.exists(f'./music_cache/{actual_music}.m4a'):
+                        self.__player.play(FFmpegPCMAudio(f'./music_cache/{actual_music}.m4a'))
 
                     else:
-                        self.__player.play(FFmpegPCMAudio(f'.\\music_cache\\{actual_music}.webm'))
+                        self.__player.play(FFmpegPCMAudio(f'./music_cache/{actual_music}.webm'))
 
                     await self.__original_channel.send(f':notes: Reproduzindo {actual_music}!')
 
@@ -100,16 +101,20 @@ class Bot(Client, YoutubeDownloader, CacheClean):
         elif (msg.content.startswith('!play') and msg.content.split(' ')[0] == '!play') or (
                 msg.content.startswith('!p') and msg.content.split(' ')[0] == '!p'):
             self.__original_channel = msg.channel
-            music_search = msg.content[6:] if msg.content.split(' ')[0] == '!play' else msg.content[3:]
+            music_search: str = msg.content[6:] if msg.content.split(' ')[0] == '!play' else msg.content[3:]
             if music_search == '' or music_search == ' ':
                 await self.__original_channel.send(':warning: Insira um nome válido!')
                 return
 
             try:
                 self.__voice_channel = msg.author.voice.channel
-                await self.__original_channel.send(f':mag_right: Procurando {music_search}')
+                await self.__original_channel.send(f':mag_right: Procurando {music_search}.')
+                if 'https://www.youtube.com/' in music_search:
+                    link = music_search
 
-                link = self.yt_search(music_search)
+                else:
+                    link = self.yt_search(music_search)
+
                 title = self.download(link)
                 if title:
                     self.__music_list.append(title)
@@ -159,7 +164,16 @@ class Bot(Client, YoutubeDownloader, CacheClean):
                 await msg.channel.send(future)
 
             else:
-                await msg.channel.send('Não há músicas na fila')
+                await msg.channel.send('Não há músicas na fila.')
+
+        elif msg.content == '!disconnect' or '!leave':
+            if self.__player:
+                if self.__player.is_playing() or self.__player.is_paused():
+                    self.__player.stop()
+                    self.__music_list = []
+
+                await self.__player.disconnect()
+                self.__player = None
 
 
 if __name__ == '__main__':
