@@ -1,8 +1,9 @@
 Notas de versão:
 
-1.0.0:
-- Suporte para links de vídeos do YouTube (apenas vídeos).
-- Agora o bot suporta o comando de desconexão do canal de voz (!help para mais detalhes).
+1.1.0:
+- Suporte para links de vídeos do YouTube (apenas vídeos);
+- Agora o bot suporta o comando de desconexão do canal de voz (!help para mais detalhes);
+- Correções de bugs.
 
 
 Problemas conhecidos:
