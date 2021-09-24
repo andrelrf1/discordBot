@@ -109,7 +109,7 @@ class Bot(Client, YoutubeDownloader, CacheClean):
             try:
                 self.__voice_channel = msg.author.voice.channel
                 await self.__original_channel.send(f':mag_right: Procurando {music_search}.')
-                if 'https://www.youtube.com/' in music_search:
+                if 'https://www.youtube.com/' in music_search or 'https://youtu.be/' in music_search:
                     link = music_search
 
                 else:
